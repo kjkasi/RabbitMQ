@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  rabbitmq.catalog:
+    image: ${DOCKER_REGISTRY-}rabbitmqcatalog
+    build:
+      context: .
+      dockerfile: RabbitMQ.Catalog/Dockerfile
+
+  rabbitmq.basket:
+    image: ${DOCKER_REGISTRY-}rabbitmqbasket
+    build:
+      context: .
+      dockerfile: RabbitMQ.Basket/Dockerfile
+
