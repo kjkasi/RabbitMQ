@@ -2,5 +2,6 @@
 {
     public class CatalogItem
     {
+        public int Id { get; set; }
     }
 }

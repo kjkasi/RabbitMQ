@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Basket.Models;
+using System.Net.Mime;
 
 namespace RabbitMQ.Basket.Controllers
 {
@@ -7,28 +8,60 @@ namespace RabbitMQ.Basket.Controllers
     [ApiController]
     public class BasketController : ControllerBase
     {
-        [HttpGet("basket")]
-        public async Task<ActionResult> GetItemsAsync()
+        private readonly IBasketRepository _itemRepo;
+
+        public BasketController(IBasketRepository itemRepo)
         {
-            return Ok();
+            _itemRepo = itemRepo;
+        }
+
+        [HttpGet("basket")]
+        [Consumes(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult> GetItems()
+        {
+            var items = await _itemRepo.GetBasketItems();
+            return Ok(items);
+        }
+
+        [HttpGet("items/{id:int}", Name = "ItemById")]
+        [Consumes(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult> ItemById(int id)
+        {
+            var item = await _itemRepo.GetBasketItem(id);
+            if (item != null)
+            {
+                return Ok(item);
+            }
+            return NotFound();
         }
 
         [HttpPost("basket")]
-        public async Task<ActionResult> AddItem(BasketItem basketItem)
+        [Consumes(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult> AddItem(BasketItem item)
         {
-            return Ok(basketItem);
+            await _itemRepo.CreateBasketItem(item);
+            return CreatedAtAction(nameof(ItemById), new { Id = item.Id }, item);
         }
 
         [HttpPut("basket")]
-        public async Task<ActionResult> UpdateItem(BasketItem basketItem)
+        [Consumes(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult> UpdateItem(BasketItem item)
         {
-            return Ok(basketItem);
+            await _itemRepo.UpdateBasketItem(item);
+            return CreatedAtAction(nameof(ItemById), new { Id = item.Id }, item);
         }
 
         [HttpDelete("basket")]
-        public async Task<ActionResult> DeleteItem(int itemId)
+        [Consumes(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult> DeleteItem(int id)
         {
-            return Ok(itemId);
+            var product = await _itemRepo.GetBasketItem(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            await _itemRepo.DeleteBasketItem(id);
+            return NoContent();
         }
     }
 }
