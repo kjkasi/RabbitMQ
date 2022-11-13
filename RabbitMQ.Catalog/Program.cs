@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using RabbitMQ.Catalog.Models;
 using System.Reflection;
 
@@ -16,7 +17,7 @@ builder.Services.AddDbContext<CatalogContext>(opt =>
         opt.UseSqlServer("Server=sqldata;Initial Catalog=CatalogDb;User Id=sa;Password=Pass@word;TrustServerCertificate=True",
             sqlServerOptionsAction: sqlopt =>
             {
-                sqlopt.MigrationsAssembly(typeof(Program).GetTypeInfo().Assembly.GetName().Name);
+                //sqlopt.MigrationsAssembly(typeof(Program).GetTypeInfo().Assembly.GetName().Name);
                 sqlopt.EnableRetryOnFailure(
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<CatalogContext>(opt =>
     });
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 #endregion
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -39,6 +41,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<CatalogContext>();
+    db.Database.EnsureDeleted();
+    db.Database.EnsureCreated();
 }
 
 app.UseHttpsRedirection();
