@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Catalog.Models;
+using System.Net;
 using System.Net.Mime;
 
 namespace RabbitMQ.Catalog.Controllers
@@ -16,7 +17,7 @@ namespace RabbitMQ.Catalog.Controllers
         }
 
         [HttpGet("items")]
-        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(IEnumerable<CatalogItem>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult> GetItems()
         {
             var items = await _itemRepo.GetCatalogItems();
@@ -24,7 +25,8 @@ namespace RabbitMQ.Catalog.Controllers
         }
 
         [HttpGet("items/{id:int}", Name = "ItemById")]
-        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(CatalogItem), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CatalogItem), (int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> ItemById(int id)
         {
             var item = await _itemRepo.GetCatalogItem(id);
@@ -36,7 +38,7 @@ namespace RabbitMQ.Catalog.Controllers
         }
 
         [HttpPost("items")]
-        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(CatalogItem), (int)HttpStatusCode.Redirect)]
         public async Task<ActionResult> AddItem(CatalogItem item)
         {
             await _itemRepo.CreateCatalogItem(item);
@@ -44,7 +46,7 @@ namespace RabbitMQ.Catalog.Controllers
         }
 
         [HttpPut("items")]
-        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(CatalogItem), (int)HttpStatusCode.Redirect)]
         public async Task<ActionResult> UpdateItem(CatalogItem item)
         {
             await _itemRepo.UpdateCatalogItem(item);
@@ -52,7 +54,8 @@ namespace RabbitMQ.Catalog.Controllers
         }
 
         [HttpDelete("items")]
-        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> DeleteItem(int id)
         {
             var product = await _itemRepo.GetCatalogItem(id);
