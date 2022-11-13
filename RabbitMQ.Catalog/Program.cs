@@ -1,6 +1,8 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Catalog.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +11,20 @@ builder.Services.AddControllers();
 
 #region DbSetup
 builder.Services.AddScoped<ICatalogItemRepository, CatalogItemRepository>();
-builder.Services.AddDbContext<CatalogContext>(opt =>
-    opt.UseSqlServer("Server=sqldata;Initial Catalog=CatalogDb;User Id=sa;Password=Pass@word;TrustServerCertificate=True"));
+builder.Services.AddDbContext<CatalogContext>(opt => 
+    {
+        opt.UseSqlServer("Server=sqldata;Initial Catalog=CatalogDb;User Id=sa;Password=Pass@word;TrustServerCertificate=True",
+            sqlServerOptionsAction: sqlopt =>
+            {
+                sqlopt.MigrationsAssembly(typeof(Program).GetTypeInfo().Assembly.GetName().Name);
+                sqlopt.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null
+                    );
+            });
+    });
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 #endregion
 
