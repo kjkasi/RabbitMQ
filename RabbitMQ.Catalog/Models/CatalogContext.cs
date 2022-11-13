@@ -6,7 +6,7 @@ namespace RabbitMQ.Catalog.Models
     {
         public CatalogContext(DbContextOptions<CatalogContext> opt) : base(opt)
         {
-            Database.EnsureDeleted();
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 

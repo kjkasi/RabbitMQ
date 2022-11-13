@@ -7,6 +7,5 @@
         Task<CatalogItem> CreateCatalogItem(CatalogItem item);
         Task<CatalogItem> UpdateCatalogItem(CatalogItem item);
         Task<bool> DeleteCatalogItem(int itemId);
-
     }
 }
