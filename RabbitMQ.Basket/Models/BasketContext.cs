@@ -6,8 +6,7 @@ namespace RabbitMQ.Basket.Models
     {
         public BasketContext(DbContextOptions<BasketContext> opt) : base(opt)
         {
-            Database.EnsureDeleted();
-            Database.EnsureCreated();
+
         }
 
         public DbSet<BasketItem> BasketItems { get; set; }
@@ -17,9 +16,9 @@ namespace RabbitMQ.Basket.Models
             base.OnModelCreating(builder);
 
             builder.Entity<BasketItem>().HasData(
-                new BasketItem { Id = 1 },
-                new BasketItem { Id = 2 },
-                new BasketItem { Id = 3 }
+                new BasketItem { Id = 1, Name = "name1", Description = "desc1" },
+                new BasketItem { Id = 2, Name = "name2", Description = "desc2" },
+                new BasketItem { Id = 3, Name = "name3", Description = "desc3" }
             );
         }
     }

@@ -1,8 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Catalog.Models;
+using RabbitMQ.Client;
 using System.Net;
 using System.Net.Mime;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Channels;
 
 namespace RabbitMQ.Catalog.Controllers
 {
@@ -51,6 +56,33 @@ namespace RabbitMQ.Catalog.Controllers
         {
             var item = _mapper.Map<CatalogItem>(itemDto);
             await _itemRepo.CreateCatalogItem(item);
+
+            var factory = new ConnectionFactory()
+            {
+                HostName = "rabbitmq"
+            };
+
+            var connection = factory.CreateConnection();
+            var channel = connection.CreateModel();
+
+            channel.ExchangeDeclare(
+                exchange: "direct_logs",
+                type: "direct"
+            );
+
+            var body = JsonSerializer.SerializeToUtf8Bytes(item, item.GetType(), new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            channel.BasicPublish(
+                exchange: "direct_logs",
+                routingKey: "info",
+                mandatory: false,
+                basicProperties: null,
+                body: body
+            );
+
             return CreatedAtAction(nameof(ItemById), new { item.Id }, item);
         }
 
