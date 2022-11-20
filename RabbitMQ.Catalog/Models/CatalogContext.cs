@@ -17,9 +17,28 @@ namespace RabbitMQ.Catalog.Models
             base.OnModelCreating(builder);
 
             builder.Entity<CatalogItem>().HasData(
-                new CatalogItem { Id = 1, Name = "name1", Description = "desc1" },
-                new CatalogItem { Id = 2, Name = "name2", Description = "desc2" },
-                new CatalogItem { Id = 3, Name = "name3", Description = "desc3" }
+                new CatalogItem
+                {
+                    Id = 1,
+                    Name = "apple", 
+                    //Description = "",
+                    Price= 0
+                },
+                new CatalogItem 
+                { 
+                    Id = 2,
+                    Name = "tomato",
+                    //Description = "",
+                    Price = 0
+                },
+                new CatalogItem
+                { 
+                    Id = 3,
+                    Name = "potato",
+                    //Description = "",
+                    Price = 0
+                }
+
             );
         }
     }

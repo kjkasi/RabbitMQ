@@ -61,7 +61,7 @@ using (var scope = app.Services.CreateScope())
         var body = ea.Body.ToArray();
         var message = JsonSerializer.Deserialize<CatalogCreate>(body) ;
         var routingKey = ea.RoutingKey;
-        Console.WriteLine($" [x] Received '{routingKey}':(Id:'{message.Id}', Name:'{message.Name}', Desc:'{message.Description}')");
+        Console.WriteLine($" [x] Received '{routingKey}':(Id:'{message?.Id}', Name:'{message?.Name}', Desc:'{message?.Description}', Price:'{message?.Price}')");
     };
     channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
 }
